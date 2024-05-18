@@ -1,0 +1,260 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.84.0">
+  <title>Home | FinanceFusion</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body{
+      padding: 0;
+      margin: 0;
+      font-family: "Poppins", "Sans-serif";
+    }
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+    }
+
+    .index-image {
+      text-align: center;
+      padding: 20px 20px 40px 20px;
+    }
+
+    .index-image img {
+      width: 60%;
+      height: auto;
+    }
+    @media (max-width: 768px) {
+      .index-image img {
+        width: 90%;
+        height: auto;
+      }
+      .brandname{
+        padding-bottom: 10px;
+      }
+    }
+
+    .card {
+      transition: transform 0.3s ease-in-out;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .card-header {
+      position: relative;
+    }
+    .card-header::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      bottom: 0;
+      left: 0;
+      background-color: currentColor;
+      transform: scaleX(0);
+      transition: transform 0.3s ease-in-out;
+    }
+    .card:hover .card-header::after {
+      transform: scaleX(1);
+    }
+    .index-image img {
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      border-radius: 0.5rem;
+    }
+    .index-image img:hover {
+      transform: translateY(-10px);
+    }
+    .index-image {
+      margin-bottom: 2rem;
+    }
+    footer {
+      background-color: #fff;
+      color: #333;
+      margin-top: 70px;
+      padding-top: 10px;
+      border-top: 2px dotted #ddd;
+    }
+    .footer-logo {
+      font-size: 32px;
+      color: #007bff;
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-logo:hover {
+      color: #0056b3;
+    }
+    .footer-info {
+      font-size: 16px;
+      margin-top: 20px;
+      color: #666;
+    }
+    .footer-info p {
+      margin-bottom: 10px;
+    }
+    .footer-info p:last-child {
+      margin-bottom: 0;
+    }
+    .footer-links a {
+      color: #333;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover {
+      color: #007bff;
+    }
+    .footer-social-icons a {
+      color: #333;
+      font-size: 24px;
+      margin: 0 10px;
+      transition: color 0.3s;
+    }
+    .footer-social-icons a:hover {
+      color: #007bff;
+    }
+  </style>
+
+  {%block head%}{%endblock head%}
+
+</head>
+
+<body>
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="check" viewBox="0 0 16 16">
+      <title>Check</title>
+      <path
+        d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+    </symbol>
+  </svg>
+
+  <div class="container py-3">
+    <header>
+      <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+        <a href="/" class="d-flex align-items-center text-dark text-decoration-none brandname">
+          <img src="{% static 'images/logo.png'%}" width="250" height="auto">
+          {% comment %} <span class="fs-4">FinanceFusion</span> {% endcomment %}
+        </a>
+
+        <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+          {% if user.is_authenticated %}
+            <a class="btn btn-primary me-3" href="/dashboard/">Dashboard</a>
+            <a class="btn btn-danger" href="/logout/">Logout</a>
+          {% else %}
+            <a class="btn btn-outline-primary me-3" href="/register/">Register</a>
+            <a class="btn btn-outline-secondary" href="/login/">Login</a>
+          {% endif %}
+        </nav>
+      
+      </div>
+    </header>
+
+    <main>
+      {%block main%}
+      <div class="container index-image">
+        <img src="{% static 'images/graph.png' %}" alt="Graph">
+      </div>
+      <section class="container py-5">
+        <div class="row g-4">
+          <!-- Manage Transactions Card -->
+          <div class="col-lg-4 col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-primary text-white">
+                <h3>Manage Transactions</h3>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Add and Edit Transactions</li>
+                  <li class="mb-2"><i class="bi bi-wallet-fill text-primary me-2"></i>Income/Expense Tracking</li>
+                  <li class="mb-2"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Category-wise Analysis</li>
+                  <li class="mb-2"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Visual Insights</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+    
+          <div class="col-lg-4 col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-success text-white">
+                <h3>Create Budget</h3>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="bi bi-coin text-success me-2"></i>Set Budget Limits</li>
+                  <li class="mb-2"><i class="bi bi-bar-chart-line-fill text-success me-2"></i>Track Spending</li>
+                  <li class="mb-2"><i class="bi bi-graph-up text-success me-2"></i>Visual Progress</li>
+                  <li class="mb-2"><i class="bi bi-bell-fill text-success me-2"></i>Expense Alerts</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+    
+          <div class="col-lg-4 col-md-12">
+            <div class="card h-100">
+              <div class="card-header bg-warning text-white">
+                <h3>Set Financial Goals</h3>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="bi bi-bullseye text-warning me-2"></i>Define Goals</li>
+                  <li class="mb-2"><i class="bi bi-speedometer2 text-warning me-2"></i>Monitor Progress</li>
+                  <li class="mb-2"><i class="bi bi-flag-fill text-warning me-2"></i>Milestone Tracking</li>
+                  <li class="mb-2"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Motivational Insights</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {%endblock main%}
+    </main>
+
+    <footer class="text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 text-md-start">
+            <a href="#" class="footer-logo">
+              <img src="{% static 'images/logo.png'%}" width="250" height="auto">
+            </a>
+            <p class="footer-info">Take control of your finances. Manage transactions, create budgets, and set goals easily. Start your financial journey now!</p>
+          </div>
+          <div class="col-md-6 mt-4 mt-md-0 text-md-end footer-links">
+            <a href="#">Home</a> |
+            <a href="#">About</a> |
+            <a href="#">Services</a> |
+            <a href="#">Contact</a>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-md-12 text-center footer-social-icons">
+            <a href="#"><i class="bi bi-facebook"></i></a>
+            <a href="#"><i class="bi bi-twitter"></i></a>
+            <a href="#"><i class="bi bi-instagram"></i></a>
+            <a href="#"><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+    </footer>
+      
+  
+  </div>
+
+
+
+</body>
+
+</html>

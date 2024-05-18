@@ -1,0 +1,117 @@
+{%extends "base.html" %}
+{%block head%}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .income{
+        color: green;
+    }
+    .expense{
+        color: red;
+    }
+</style>
+{%endblock head%}
+
+
+{% block main %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="/dashboard/" class="text-decoration-none">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            
+        </li>
+        <li class="breadcrumb-item active">
+            <i class="fas fa-file-alt"></i> Transactions
+        </li>
+    </ol>
+</nav>
+  
+<h2 id="monthYearDisplay"></h2>
+<div class="container text-center my-3">
+        <button id="prevMonthBtn" class="btn btn-secondary">Previous Month</button>
+        <button id="nextMonthBtn" class="btn btn-secondary">Next Month</button>
+</div>
+
+    <table id="transactionTable" class="table">
+        
+    </table>
+
+  
+
+    <script>
+        function fetchTransactions(year, month) {
+            $.ajax({
+                url: `/get_transactions/${year}/${month}/`,
+                type: 'GET',
+                success: function(data) {
+                    $('#transactionTable').empty();
+                    if (data.transactions.length > 0) {
+                        $('#transactionTable').append('<tr><th>Date</th><th>Amount ({{currency}})</th><th>Type</th><th>Category</th><th>Action</th></tr>');
+                        $.each(data.transactions, function(index, transaction) {
+                            var typeClass = transaction.type==="Income"?"income" : (transaction.type==="Expense"?"expense": "")
+                            $('#transactionTable').append(
+                                '<tr class="' +typeClass + '">' +
+                                    '<td>' + transaction.date + '</td>' +
+                                    '<td>' + transaction.amount + '</td>' +
+                                    '<td>' + transaction.type + '</td>' +
+                                    '<td>' + transaction.category + '</td>' +
+                                    '<td><a href="/edit-transaction/' + transaction.id + '/">Edit</a></td>' +
+                                '</tr>'
+                            );                        });
+                    } else {
+                        $('#transactionTable').append('<td>No transactions found for the selected month.</td>');
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            months =['Jan', 'Feb', 'Mar', 'Apr', 'May','Jun', 'Jul', 'Aug','Sep', 'Oct', 'Nov', 'Dec'];
+            var currentYear = {{ current_year }};
+            var currentMonth = {{ current_month }};
+            const current_year = currentYear
+            const current_month = currentMonth
+
+            
+            fetchTransactions(current_year, current_month);
+            $('#monthYearDisplay').text(months[currentMonth-1] + ', ' + currentYear + ' Transactions');
+            
+            $('#prevMonthBtn').click(function() {
+                currentMonth -= 1;
+                if (currentMonth === 0) {
+                    currentMonth = 12;
+                    currentYear -= 1;
+                }
+                fetchTransactions(currentYear, currentMonth);
+                $('#monthYearDisplay').text(months[currentMonth-1] + ', ' + currentYear + ' Transactions');
+                document.getElementById('nextMonthBtn').classList.remove('disabled')
+            });
+
+            if (current_year === currentYear && currentMonth === current_month)
+            {
+                document.getElementById('nextMonthBtn').classList.add('disabled')
+            }
+
+            $('#nextMonthBtn').click(function() {
+                if ((current_year > currentYear) || (current_year === currentYear && currentMonth < current_month))
+                {
+                    currentMonth += 1;
+                    if (currentMonth === 13) 
+                    {
+                        currentMonth = 1;
+                        currentYear += 1;
+                    }
+                    fetchTransactions(currentYear, currentMonth);
+                    $('#monthYearDisplay').text(months[currentMonth-1] + ', ' + currentYear + ' Transactions');
+                    if (current_year === currentYear && currentMonth == current_month)
+                    {
+                        document.getElementById('nextMonthBtn').classList.add('disabled')
+                    }
+                }
+                
+                
+            });
+        });
+    </script>
+{%endblock main%}
