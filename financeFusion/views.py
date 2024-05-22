@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import UserForm, UserProfileForm, TransactionForm, BudgetForm, GoalForm
 from . import models
 from django import forms
-from django.db.models import Sum
+from django.db.models import Sum,Q
 from django.urls import reverse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
-from datetime import datetime
+from datetime import datetime,date
 import re
 
 # Create your views here.
@@ -39,26 +39,43 @@ def register(request):
 
 @login_required
 def dashboard(request):
-    user= request.user.id
-    user_income = models.Transaction.objects.filter(user=user, transaction_type='INCOME').aggregate(Sum('amount'))['amount__sum']
+    current_date = date.today()
+    results = models.Budget.objects.filter(
+    Q(end_date__gte=current_date)
+    )
+    dic ={}
+    data=[]
+
+    for result in results:
+        expenses = models.Transaction.objects.filter(Q(date__gte=result.start_date) & Q(date__lte=result.end_date),
+                                                    user= request.user,
+                                                    transaction_type='EXPENSE',
+                                                    category=result.category,
+                                                    ).values('category__name').annotate(total_amount=Sum('amount'))
+        if expenses:
+            dic = {}
+            dic['category'] = result.category.name
+            dic['budget'] = result.amount
+            dic['expense'] = expenses[0]['total_amount']
+            dic['expense_percentage'] = round((expenses[0]['total_amount'] / result.amount) * 100, 2)
+            dic['amount_left'] = result.amount - expenses[0]['total_amount']
+            data.append(dic)
+        else:
+            dic = {}
+            dic['category'] = result.category.name
+            dic['budget'] = result.amount
+            dic['expense'] = 0
+            dic['expense_percentage'] = 0
+            dic['amount_left'] = result.amount
+            data.append(dic)
+
+
+    # user= request.user.id
+    # user_income = models.Transaction.objects.filter(user=user, transaction_type='INCOME').aggregate(Sum('amount'))['amount__sum']
     dash_active = active
     dash_active['dashboard'] = 1
-    az = {'user_income':user_income,'dash_active':dash_active}
-    return render(request, 'dashboard.html',az)   
-
-@login_required
-def get_transactions(request, year, month):
-    transactions = models.Transaction.objects.filter(date__year=year, date__month=month,user=request.user)
-    transaction_list = []
-    for transaction in transactions:
-        transaction_list.append({
-            'id': transaction.id,
-            'date': transaction.date.strftime('%d-%m-%y'),
-            'amount': transaction.amount,
-            'type': transaction.get_transaction_type_display(),
-            'category': transaction.category.name,
-        })
-    return JsonResponse({'transactions': transaction_list})
+    context = {'dash_active':dash_active, 'data':data}
+    return render(request, 'dashboard.html',context)   
 
 def user_login(request):
     if request.user.is_authenticated:
@@ -91,7 +108,6 @@ def user_login(request):
             print("Identifier: {}, Password: {}".format(identifier, password))
             # raise forms.ValidationError("Invalid username or password")
             return render(request, 'login.html', {'error_message': 'Invalid username or password'})
-
 
 
     return render(request, 'login.html')
@@ -196,3 +212,23 @@ def get_expenses(request):
         'colors': colors
     }
     return JsonResponse(data)
+
+@login_required
+def get_transactions(request, year, month):
+    transactions = models.Transaction.objects.filter(date__year=year, date__month=month,user=request.user)
+    transaction_list = []
+    for transaction in transactions:
+        transaction_list.append({
+            'id': transaction.id,
+            'date': transaction.date.strftime('%d-%m-%y'),
+            'amount': transaction.amount,
+            'type': transaction.get_transaction_type_display(),
+            'category': transaction.category.name,
+        })
+    return JsonResponse({'transactions': transaction_list})
+
+
+# @login_required
+# def calculate_budget(request):
+    
+

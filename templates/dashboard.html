@@ -66,6 +66,31 @@
     <div>
       <h3 style="color: blue; text-align: center;">Budgets</h3>
     </div>
+    {%for item in data%}
+    <h6>{{item.category}}</h6>
+    {%if item.expense_percentage < 60 %}
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{item.expense_percentage}}%" aria-valuenow="{{item.expense_percentage}}" aria-valuemin="0" aria-valuemax="100">{{item.expense_percentage}}%</div>
+    </div>
+    {%elif item.expense_percentage < 90 %}
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{item.expense_percentage}}%" aria-valuenow="{{item.expense_percentage}}" aria-valuemin="0" aria-valuemax="100">{{item.expense_percentage}}%</div>
+    </div>
+    {%elif item.expense_percentage < 99 %}
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: {{item.expense_percentage}}%" aria-valuenow="{{item.expense_percentage}}" aria-valuemin="0" aria-valuemax="100">{{item.expense_percentage}}%</div>
+    </div>
+    {%else%}
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: {{item.expense_percentage}}%" aria-valuenow="{{item.expense_percentage}}" aria-valuemin="0" aria-valuemax="100">{{item.expense_percentage}}%</div>
+    </div>
+    {%endif%}
+    <table class="table">
+      <tr>
+        <td class= "text-primary">{{item.budget}}</td><td class= "text-danger">{{item.expense}}</td><td class= "text-success">{{item.amount_left}}</td>
+      </tr>
+    </table>
+    {%endfor%}
      
   </div>
 
