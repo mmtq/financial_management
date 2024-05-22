@@ -41,16 +41,16 @@ def register(request):
 def dashboard(request):
     current_date = date.today()
     results = models.Budget.objects.filter(
-    Q(end_date__gte=current_date)
+        Q(end_date__gte=current_date) & Q(user=request.user)
     )
     dic ={}
     data=[]
 
     for result in results:
-        expenses = models.Transaction.objects.filter(Q(date__gte=result.start_date) & Q(date__lte=result.end_date),
-                                                    user= request.user,
-                                                    transaction_type='EXPENSE',
-                                                    category=result.category,
+        expenses = models.Transaction.objects.filter(Q(date__gte=result.start_date) & Q(date__lte=result.end_date) &
+                                                    Q(user= request.user) &
+                                                    Q(transaction_type='EXPENSE') &
+                                                    Q(category=result.category)
                                                     ).values('category__name').annotate(total_amount=Sum('amount'))
         if expenses:
             dic = {}
