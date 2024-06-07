@@ -15,7 +15,7 @@ urlpatterns = [
     path('edit-transaction/<int:transaction_id>/', views.edit_transaction, name='edit_transaction'),
     path('recent-transactions/', views.recent_transactions, name='recent_transactions'),
     path('get_transactions/<int:year>/<int:month>/', views.get_transactions, name='get_transactions'),
-    path('get_expenses/', views.get_expenses, name='get_expenses'),
+    path('get_expenses/<int:year>/<int:month>/', views.get_expenses, name='get_expenses'),
     # path('get_budget/', views.calculate_budget, name='get_budget'),
 
 ]

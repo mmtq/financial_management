@@ -22,44 +22,109 @@
     <div>
       <h3 style="color: red; text-align: center;">Expenses</h3>
     </div>
-    <canvas id="myChart"></canvas>
-    <script>
-      async function fetchData() {
-        const response = await fetch('/get_expenses/');
-        const data = await response.json();
-        return data;
-      }
-      async function createChart() {
-        const data = await fetchData();
-        const ctx = document.getElementById('myChart').getContext('2d');
+    <div class="input-group">
+      <select id="month" class="form-control">
+          <option value="01">January</option>
+          <option value="02">February</option>
+          <option value="03">March</option>
+          <option value="04">April</option>
+          <option value="05">May</option>
+          <option value="06">June</option>
+          <option value="07">July</option>
+          <option value="08">August</option>
+          <option value="09">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+      </select>
 
-        new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: data.labels,
-            datasets: [{
-              label: 'Expense',
-              data: data.values,
-              backgroundColor: data.colors,
-              borderColor: data.colors.map(color => color.replace('70%, 50%', '70%, 70%')),
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: {
-                position: 'right',
-              },
-              tooltip: {
-                enabled: true
-              }
+      <select id="year" class="form-control">
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+      </select>
+  </div>
+  <canvas id="myChart"></canvas>
+  <script>
+    async function fetchData(month, year) {
+      try {
+        const response = await fetch(`/get_expenses/${year}/${month}/`);
+        const data = await response.json();
+        console.log('Fetched data:', data); // Debug: Log the fetched data
+        return data;
+      } catch (error) {
+        console.error('Error fetching data:', error); // Debug: Log any fetch errors
+        return null;
+      }
+    }
+
+    async function createChart(month, year) {
+      const data = await fetchData(month, year);
+      if (!data) {
+        console.error('No data available for the selected month and year');
+        return;
+      }
+      const ctx = document.getElementById('myChart').getContext('2d');
+
+      // Destroy previous chart instance if it exists and is a Chart instance
+      if (window.myChart instanceof Chart) {
+          window.myChart.destroy();
+      }
+
+      window.myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Expense',
+            data: data.values,
+            backgroundColor: data.colors,
+            borderColor: data.colors.map(color => color.replace('70%, 50%', '70%, 70%')),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+            tooltip: {
+              enabled: true
             }
           }
-        });
-      }
-      createChart();
-    </script>
+        }
+      });
+
+      console.log('Chart created with data:', data); // Debug: Log the data used to create the chart
+    }
+
+    function getCurrentMonthAndYear() {
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = String(now.getFullYear());
+      return { month, year };
+    }
+
+    document.getElementById('month').addEventListener('change', () => {
+      const month = document.getElementById('month').value;
+      const year = document.getElementById('year').value;
+      createChart(month, year);
+    });
+
+    document.getElementById('year').addEventListener('change', () => {
+      const month = document.getElementById('month').value;
+      const year = document.getElementById('year').value;
+      createChart(month, year);
+    });
+
+    // Initialize the chart with the current month and year
+    window.addEventListener('DOMContentLoaded', (event) => {
+      const { month, year } = getCurrentMonthAndYear();
+      document.getElementById('month').value = month;
+      document.getElementById('year').value = year;
+      createChart(month, year);
+    });
+  </script>
   </div>
 
   <div class="col-lg-4 col-md-6">

@@ -192,10 +192,9 @@ def generate_colors(n):
     return colors
 
 @login_required
-def get_expenses(request):
-    now = datetime.now()
-    current_month = now.month
-    current_year = now.year
+def get_expenses(request,year,month):
+    current_month = month
+    current_year = year
     expenses = models.Transaction.objects.filter(user= request.user,
                                                  transaction_type='EXPENSE',
                                                  date__year=current_year,
@@ -211,6 +210,7 @@ def get_expenses(request):
         'values': values,
         'colors': colors
     }
+    print (data)
     return JsonResponse(data)
 
 @login_required
