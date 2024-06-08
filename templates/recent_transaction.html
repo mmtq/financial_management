@@ -2,12 +2,16 @@
 {%block head%}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
-    .income{
-        color: green;
+    
+    .on-hover{
+        visibility: hidden;
     }
-    .expense{
-        color: red;
+    table tr:nth-child(n):hover {
+        .on-hover {
+            visibility: visible;
+        } 
     }
+
 </style>
 {%endblock head%}
 
@@ -33,11 +37,7 @@
         <button id="nextMonthBtn" class="btn btn-secondary">Next Month</button>
 </div>
 
-    <table id="transactionTable" class="table">
-        
-    </table>
-
-  
+    <table id="transactionTable" class="table table-hover table-bordered"></table>
 
     <script>
         function fetchTransactions(year, month) {
@@ -47,19 +47,20 @@
                 success: function(data) {
                     $('#transactionTable').empty();
                     if (data.transactions.length > 0) {
-                        $('#transactionTable').append('<tr><th>Date</th><th>Amount ({{currency}})</th><th>Type</th><th>Category</th><th>Action</th></tr>');
+                        $('#transactionTable').append("<tr><th>Date</th><th>Amount</th><th>Category</th></tr>");
                         $.each(data.transactions, function(index, transaction) {
                             var typeClass = transaction.type==="Income"?"income" : (transaction.type==="Expense"?"expense": "")
                             $('#transactionTable').append(
                                 '<tr class="' +typeClass + '">' +
                                     '<td>' + transaction.date + '</td>' +
                                     '<td>' + transaction.amount + '</td>' +
-                                    '<td>' + transaction.type + '</td>' +
                                     '<td>' + transaction.category + '</td>' +
-                                    '<td><a href="/edit-transaction/' + transaction.id + '/">Edit</a></td>' +
+                                    '<td class="on-hover"><a class="text-decoration-none" href="/edit-transaction/' + transaction.id + '/">✏️</a><a class="text-decoration-none" href="/edit-transaction/' + transaction.id + '/">❌</a></td>' +
                                 '</tr>'
-                            );                        });
-                    } else {
+                            );                        
+                        });
+                    }
+                    else {
                         $('#transactionTable').append('<td>No transactions found for the selected month.</td>');
                     }
                 }

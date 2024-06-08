@@ -215,12 +215,17 @@ def get_expenses(request,year,month):
 
 @login_required
 def get_transactions(request, year, month):
-    transactions = models.Transaction.objects.filter(date__year=year, date__month=month,user=request.user)
+    transactions = models.Transaction.objects.filter(
+    date__year=year,
+    date__month=month,
+    user=request.user
+    ).order_by('date')
+
     transaction_list = []
     for transaction in transactions:
         transaction_list.append({
             'id': transaction.id,
-            'date': transaction.date.strftime('%d-%m-%y'),
+            'date': transaction.date.strftime('%d'),
             'amount': transaction.amount,
             'type': transaction.get_transaction_type_display(),
             'category': transaction.category.name,

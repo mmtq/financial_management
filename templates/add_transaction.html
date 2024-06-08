@@ -20,8 +20,40 @@
         </div>
         <div class="col-lg-6 col-md-6 d-none d-md-block">
             <div class="p-3 border bg-light">
-                <h2>Additional Content</h2>
+                <h3>Recently Added in this month</h3>
+                <table id = "recentAdded" class="table"></table>
             </div>
+            <script>
+                function fetchTransactions(year,month) {
+                    $.ajax({
+                        url: `/get_transactions/${year}/${month}/`,
+                        type: 'GET',
+                        success: function(data){
+                            $("#recentAdded").empty();
+                            if (data.transactions.length > 0) {
+                                var len = data.transactions.length;
+                                for (var i = len - 1; i >= len -5; i--)
+                                {
+                                    var typeClass = data.transactions[i].type==="Income"?"income" : (data.transactions[i].type==="Expense"?"expense": "")
+                                    $('#recentAdded').append(
+                                        '<tr class="' +typeClass + '">' +
+                                            '<td>' + data.transactions[i].amount + '</td>' +
+                                            '<td>' + data.transactions[i].category + '</td>' +
+                                        '</tr>'
+                                    );                        
+                                }
+                            }
+                            else {
+                                $('#recentAdded').append('<td>No transactions added recently.</td>');
+                            }
+                        }
+
+                    });
+                }
+                $(document).ready(function(){
+                    fetchTransactions(2024,5);
+                });
+            </script>
         </div>
     </div>
 </div>
