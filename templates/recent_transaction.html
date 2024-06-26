@@ -11,7 +11,15 @@
             visibility: visible;
         } 
     }
-
+    #transactionTable{
+        max-width: 800px;
+        box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        
+    }
+    #transactionTable th, td{
+        padding: 5px;
+    }
 </style>
 {%endblock head%}
 
@@ -37,10 +45,12 @@
         <button id="nextMonthBtn" class="btn btn-secondary">Next Month</button>
 </div>
 
-    <table id="transactionTable" class="table table-hover table-bordered"></table>
+    <table id="transactionTable" class="table"></table>
 
     <script>
+        var isLoading = false;
         function fetchTransactions(year, month) {
+
             $.ajax({
                 url: `/get_transactions/${year}/${month}/`,
                 type: 'GET',
@@ -55,7 +65,7 @@
                                     '<td>' + transaction.date + '</td>' +
                                     '<td>' + transaction.amount + '</td>' +
                                     '<td>' + transaction.category + '</td>' +
-                                    '<td class="on-hover"><a class="text-decoration-none" href="/edit-transaction/' + transaction.id + '/">✏️</a><a class="text-decoration-none" href="/edit-transaction/' + transaction.id + '/">❌</a></td>' +
+                                    '<td class="on-hover"><a class="text-decoration-none" href="/edit-transaction/' + transaction.id + '/">✏️</a><a class="text-decoration-none" href="/delete-transaction/' + transaction.id + '/">❌</a></td>' +
                                 '</tr>'
                             );                        
                         });

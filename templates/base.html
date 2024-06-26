@@ -20,6 +20,19 @@
       font-family: "Poppins", "Sans-serif";
 
     }
+    h2 {
+    font-size: 2em;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+/* Specific settings for h3 */
+h3 {
+    font-size: 1.75em;
+    font-weight: bold;
+    padding-bottom: 4px;
+}
+
     .nav-item {
       transition: transform 0.3s ease-in-out;
     }
@@ -151,6 +164,18 @@
                   <line x1="6" y1="20" x2="6" y2="14"></line>
                 </svg>
                 <span class="ml-2">Set Goal</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {%if bg_active.bg %}active{%endif%}" href="/budgets-goals/">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-bar-chart-2">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span class="ml-2">Budgets & Goals</span>
               </a>
             </li>
         </div>

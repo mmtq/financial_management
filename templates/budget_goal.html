@@ -1,0 +1,59 @@
+{%extends 'base.html'%}
+{%block head%}
+<style>
+    .on-hover{
+        visibility: hidden;
+    }
+    table tr:nth-child(n):hover {
+        .on-hover {
+            visibility: visible;
+        } 
+    }
+</style>
+{%endblock%}
+{%block main%}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">Set Goal</li>
+    </ol>
+  </nav>
+  
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-12" style="box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2); padding: 5px; border-radius: 15px;">
+            <h3 style="color: blue; text-align: center;">On Going Budgets</h3>
+            <table class="table">
+                <tr>
+                    <th>Name</th><th>Amount</th><th>Start</th><th>End</th>
+                </tr>
+                {%for item in budgets%}
+                <tr>
+                    <td>{{item.name}}</td><td>{{item.amount}}</td><td>{{item.start_date}}</td><td>{{item.end_date}}</td>
+                    <td class="on-hover"><a class="text-decoration-none" href="/edit-budget/{{item.id}}/">✏️</a><a class="text-decoration-none" href="/delete-budget/{{item.id}}/">❌</a></td>
+                </tr>
+                {%endfor%}
+            </table>
+           
+        </div>
+        <div class="col-lg-6 col-md-6 col-12" style="box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2); padding: 5px; border-radius: 15px; margin: 20px 0;">
+
+            <h3 style="color: green; text-align: center;">On Going Goals</h3>
+            <table class="table">
+                <tr>
+                    <th>Name</th><th>Target</th><th>Start</th><th>Due</th>
+                </tr>
+                {%for item in goals%}
+                <tr>
+                    <td>{{item.name}}</td><td>{{item.target_amount}}</td><td>{{item.start_date}}</td><td>{{item.due_date}}</td>
+                    <td class="on-hover"><a class="text-decoration-none" href="/edit-budget/{{item.id}}/">✏️</a><a class="text-decoration-none" href="/delete-budget/{{budget.id}}/">❌</a></td>
+                </tr>
+                {%endfor%}
+            </table>
+                    
+        </div>
+    </div>
+</div>
+
+
+{% endblock main%}

@@ -1,6 +1,54 @@
 {%extends "base.html"%}
 {%block head%}
 <style>
+  .progress{
+    height: 40px;
+    background-color: rgba(33, 31, 31, 0.175);
+    border-radius: 50px;
+    box-shadow: none;
+    padding: 5px;
+    /* margin-bottom: 30px; */
+    overflow: visible;
+}
+.progress .progress-bar{
+    box-shadow: none;
+    position: relative;
+    border-radius: 20px;
+    animation: animate-positive 2s;
+}
+.progress .progress-title{
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    margin: 0;
+    position: absolute;
+    /* top: 8px; */
+    left: 5px;
+}
+.progress .progress-value{
+    width: 40px;
+    height: 26px;
+    line-height: 30px;
+    background: #ffffff;
+    border-radius: 50px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    font-size: 11px;
+    font-weight: bold;
+    color: #000000;
+    position: absolute;
+    top:2px;
+    right: 2px;
+}
+.progress.yellow .progress-value{ color: #ffcc00; }
+.progress.blue .progress-value{ color: #7049ba; }
+.progress.green .progress-value{ color: #5fad56; }
+@-webkit-keyframes animate-positive{
+    0% { width: 0; }
+}
+@keyframes animate-positive{
+    0% { width: 0; }
+}
 </style>
 {%endblock head%}
 {%block main%}
@@ -18,7 +66,7 @@
   </ol>
 </nav>
 <div class="row g-4">
-  <div class="col-lg-4 col-md-6">
+  <div class="col-lg-4 col-md-6" style="box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2); padding: 5px; border-radius: 15px;">
     <div>
       <h3 style="color: red; text-align: center;">Expenses</h3>
     </div>
@@ -49,10 +97,10 @@
       try {
         const response = await fetch(`/get_expenses/${year}/${month}/`);
         const data = await response.json();
-        console.log('Fetched data:', data); // Debug: Log the fetched data
+        // console.log('Fetched data:', data); 
         return data;
       } catch (error) {
-        console.error('Error fetching data:', error); // Debug: Log any fetch errors
+        // console.error('Error fetching data:', error); 
         return null;
       }
     }
@@ -65,7 +113,6 @@
       }
       const ctx = document.getElementById('myChart').getContext('2d');
 
-      // Destroy previous chart instance if it exists and is a Chart instance
       if (window.myChart instanceof Chart) {
           window.myChart.destroy();
       }
@@ -95,7 +142,7 @@
         }
       });
 
-      console.log('Chart created with data:', data); // Debug: Log the data used to create the chart
+      console.log('Chart created with data:', data); 
     }
 
     function getCurrentMonthAndYear() {
@@ -117,7 +164,6 @@
       createChart(month, year);
     });
 
-    // Initialize the chart with the current month and year
     window.addEventListener('DOMContentLoaded', (event) => {
       const { month, year } = getCurrentMonthAndYear();
       document.getElementById('month').value = month;
@@ -127,27 +173,38 @@
   </script>
   </div>
 
-  <div class="col-lg-4 col-md-6">
+  <div class="col-lg-4 col-md-6" style="box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2); padding: 5px; border-radius: 15px;">
     <div>
-      <h3 style="color: blue; text-align: center;">Budgets</h3>
+      <h3 style="color: blue; text-align: center;">On Going Budgets</h3>
     </div>
     {%for item in data%}
-    <h6>{{item.category}}</h6>
     {%if item.expense_percentage < 60 %}
     <div class="progress">
-      <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{item.expense_percentage}}%" aria-valuenow="{{item.expense_percentage}}" aria-valuemin="0" aria-valuemax="100">{{item.expense_percentage}}%</div>
+      <div class="progress-bar bg-success" style="width: {{item.expense_percentage}}%">
+          <h4 class="progress-title">{{item.category}}</h4>
+          <div class="progress-value">{{item.expense_percentage}}%</div>
+      </div>
     </div>
     {%elif item.expense_percentage < 90 %}
     <div class="progress">
-      <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{item.expense_percentage}}%" aria-valuenow="{{item.expense_percentage}}" aria-valuemin="0" aria-valuemax="100">{{item.expense_percentage}}%</div>
+      <div class="progress-bar bg-info" style="width: {{item.expense_percentage}}%">
+          <h4 class="progress-title">{{item.category}}</h4>
+          <div class="progress-value">{{item.expense_percentage}}%</div>
+      </div>
     </div>
     {%elif item.expense_percentage < 99 %}
     <div class="progress">
-      <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: {{item.expense_percentage}}%" aria-valuenow="{{item.expense_percentage}}" aria-valuemin="0" aria-valuemax="100">{{item.expense_percentage}}%</div>
+      <div class="progress-bar bg-warning" style="width: {{item.expense_percentage}}%">
+          <h4 class="progress-title">{{item.category}}</h4>
+          <div class="progress-value">{{item.expense_percentage}}%</div>
+      </div>
     </div>
     {%else%}
     <div class="progress">
-      <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: {{item.expense_percentage}}%" aria-valuenow="{{item.expense_percentage}}" aria-valuemin="0" aria-valuemax="100">{{item.expense_percentage}}%</div>
+      <div class="progress-bar bg-danger" style="width: {{item.expense_percentage}}%">
+          <h4 class="progress-title">{{item.category}}</h4>
+          <div class="progress-value">{{item.expense_percentage}}%</div>
+      </div>
     </div>
     {%endif%}
     <table class="table">
@@ -156,13 +213,66 @@
       </tr>
     </table>
     {%endfor%}
+    <h6>🎖️ Legends</h6>
+    <table class="table">
+      <tbody>
+        <tr>
+          <td class= "text-primary">Budget</td><td class= "text-danger">Expense</td><td class= "text-success">Amount Left</td>
+        </tr>
+      </tbody>
+    </table>    
      
   </div>
 
-  <div class="col-lg-4 col-md-12">
+  <div class="col-lg-4 col-md-6" style="box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2); padding: 5px; border-radius: 15px;">
     <div>
       <h3 style="color: green; text-align: center;">Goals</h3>
     </div>
+    {%for item in data2%}
+    {%if item.income_percentage < 40 %}
+    <div class="progress">
+      <div class="progress-bar bg-danger" style="width: {{item.income_percentage}}%">
+          <h4 class="progress-title">{{item.category}}</h4>
+          <div class="progress-value">{{item.income_percentage}}%</div>
+      </div>
+    </div>
+    {%elif item.income_percentage < 70 %}
+    <div class="progress">
+      <div class="progress-bar bg-warning" style="width: {{item.income_percentage}}%">
+          <h4 class="progress-title">{{item.category}}</h4>
+          <div class="progress-value">{{item.income_percentage}}%</div>
+      </div>
+    </div>
+    {%elif item.income_percentage < 99 %}
+    <div class="progress">
+      <div class="progress-bar bg-info" style="width: {{item.income_percentage}}%">
+          <h4 class="progress-title">{{item.category}}</h4>
+          <div class="progress-value">{{item.income_percentage}}%</div>
+      </div>
+    </div>
+    {%else%}
+    <div class="progress">
+      <div class="progress-bar bg-success" style="width: {{item.income_percentage}}%">
+          <h4 class="progress-title">{{item.category}}</h4>
+          <div class="progress-value">{{item.income_percentage}}%</div>
+      </div>
+    </div>
+    {%endif%}
+    <table class="table">
+      <tr>
+        <td class= "text-danger">{{item.target}}</td><td class= "text-success">{{item.income}}</td><td class= "text-primary">{{item.amount_left}}</td>
+      </tr>
+    </table>
+    {%endfor%}
+    
+    <h6>🎖️ Legends</h6>
+    <table class="table">
+      <tbody>
+        <tr>
+          <td class= "text-danger">Target Amount</td><td class= "text-success">Earned</td><td class= "text-primary">To be Earned</td>
+        </tr>
+      </tbody>
+    </table>    
      
 </div>
 

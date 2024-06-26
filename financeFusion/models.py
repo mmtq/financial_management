@@ -46,7 +46,9 @@ class Goal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True) 
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True) 
     target_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    start_date = models.DateField(null=True, blank=True)
     due_date = models.DateField()
     current_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 

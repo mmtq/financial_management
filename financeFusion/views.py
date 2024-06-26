@@ -6,13 +6,13 @@ from django.db.models import Sum,Q
 from django.urls import reverse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse,JsonResponse,HttpResponseForbidden
 from datetime import datetime,date
 import re
 
 # Create your views here.
 
-active= {'dashboard':0,'transaction':0,'add_transaction':0,'goal':0,'budget':0}
+active= {'dashboard':0,'transaction':0,'add_transaction':0,'goal':0,'budget':0, 'bg':0,}
 def index(request):
     return render(request,'index.html')
 
@@ -39,6 +39,8 @@ def register(request):
 
 @login_required
 def dashboard(request):
+    dash_active = active
+    dash_active['dashboard'] = 1
     current_date = date.today()
     results = models.Budget.objects.filter(
         Q(end_date__gte=current_date) & Q(user=request.user)
@@ -57,7 +59,7 @@ def dashboard(request):
             dic['category'] = result.category.name
             dic['budget'] = result.amount
             dic['expense'] = expenses[0]['total_amount']
-            dic['expense_percentage'] = round((expenses[0]['total_amount'] / result.amount) * 100, 2)
+            dic['expense_percentage'] = round((expenses[0]['total_amount'] / result.amount) * 100, 0)
             dic['amount_left'] = result.amount - expenses[0]['total_amount']
             data.append(dic)
         else:
@@ -68,13 +70,37 @@ def dashboard(request):
             dic['expense_percentage'] = 0
             dic['amount_left'] = result.amount
             data.append(dic)
-
-
-    # user= request.user.id
-    # user_income = models.Transaction.objects.filter(user=user, transaction_type='INCOME').aggregate(Sum('amount'))['amount__sum']
-    dash_active = active
-    dash_active['dashboard'] = 1
-    context = {'dash_active':dash_active, 'data':data}
+    user= request.user.id
+    user_income = models.Transaction.objects.filter(user=user, transaction_type='INCOME').aggregate(Sum('amount'))['amount__sum']
+    goals = models.Goal.objects.filter(
+        Q(due_date__gte=current_date) & Q(user=request.user)
+    )
+    # dic ={}
+    data2=[]
+    for goal in goals:
+        incomes = models.Transaction.objects.filter(Q(date__gte=goal.start_date) & Q(date__lte=goal.due_date) &
+                                                    Q(user= request.user) &
+                                                    Q(transaction_type='INCOME') &
+                                                    Q(category=goal.category)
+                                                    ).values('category__name').annotate(total_amount=Sum('amount'))
+        if incomes:
+            dic = {}
+            dic['category'] = goal.category.name
+            dic['target'] = goal.target_amount
+            dic['income'] = incomes[0]['total_amount']
+            dic['income_percentage'] = round((incomes[0]['total_amount'] / goal.target_amount) * 100, 0)
+            dic['amount_left'] = goal.target_amount - incomes[0]['total_amount']
+            data2.append(dic)
+        else:
+            dic = {}
+            dic['category'] = goal.category.name
+            dic['target'] = goal.target_amount
+            dic['income'] = 0
+            dic['income_percentage'] = 0
+            dic['amount_left'] = goal.target_amount
+            data2.append(dic)
+    print (data2)
+    context = {'dash_active':dash_active, 'data':data, 'data2':data2}
     return render(request, 'dashboard.html',context)   
 
 def user_login(request):
@@ -85,7 +111,6 @@ def user_login(request):
         identifier = request.POST.get('identifier')
         password = request.POST.get('password')
         
-        # Check if the identifier is an email or a username
         if re.match(r"[^@]+@[^@]+\.[^@]+", identifier):
             try:
                 user = models.User.objects.get(email=identifier)
@@ -146,6 +171,31 @@ def edit_transaction(request, transaction_id):
     return render(request, 'add_transaction.html', {'form': form})
 
 @login_required
+def delete_transaction(request, transaction_id):
+    transaction_instance = get_object_or_404(models.Transaction, id=transaction_id, user=request.user)
+    transaction_instance.delete()
+    return redirect("recent_transactions")
+
+@login_required
+def edit_budget(request, budget_id):
+    transaction_instance = get_object_or_404(models.Budget, id=budget_id, user=request.user)
+    if request.method=='POST':
+        form = BudgetForm(data=request.POST, instance= transaction_instance)
+        if form.is_valid():
+            form.save()
+            return redirect ("recent_transactions")
+    else:
+        form =BudgetForm(instance=transaction_instance)
+    return render(request, 'create_budget.html', {'form': form})
+
+@login_required
+def delete_budget(request, budget_id):
+    budget_instance = get_object_or_404(models.Budget, id=budget_id, user=request.user)
+    budget_instance.delete()
+    return redirect("budgets_goals")
+
+
+@login_required
 def recent_transactions(request):
     transactions_active = active
     transactions_active['transaction'] = 1
@@ -180,7 +230,6 @@ def set_goal(request):
             return redirect('dashboard')
     else:
          form = GoalForm
-    
     return render(request, 'set_goal.html', {'form': form, 'goal_active':goal_active})
 
 def generate_colors(n):
@@ -210,7 +259,7 @@ def get_expenses(request,year,month):
         'values': values,
         'colors': colors
     }
-    print (data)
+    # print (data)
     return JsonResponse(data)
 
 @login_required
@@ -232,8 +281,21 @@ def get_transactions(request, year, month):
         })
     return JsonResponse({'transactions': transaction_list})
 
+@login_required
+def budget_goal(request):
+    bg_active = active
+    bg_active['bg'] = 1
+    current_date = date.today()
+    budgets = models.Budget.objects.filter(
+        Q(end_date__gte=current_date) & Q(user=request.user)
+    )
+    goals = models.Goal.objects.filter(
+        Q(due_date__gte=current_date) & Q(user=request.user)
+    )
 
-# @login_required
-# def calculate_budget(request):
-    
+    context = {'budgets':budgets, 'goals':goals}
+
+    return render(request, 'budget_goal.html', context)
+
+
 
